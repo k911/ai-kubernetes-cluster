@@ -1,12 +1,29 @@
 version: '3.4'
+
 services:
+  reverse-proxy:
+    restart: always
+    image: traefik
+    command: --api --docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./reverse-proxy/traefik.toml:/etc/traefik/traefik.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+
   image-service:
+    deploy:
+      replicas: 2
+    restart: always
     build:
       context: ./image-service
-    ports:
-      - 5000:5000
     volumes:
-      - ./image-service/app:/usr/src/app
+      - ./image-service/src:/usr/src/app/src
+    labels:
+      traefik.docker.network: traefik
+      traefik.port: 5000
+      traefik.frontend.rule: Host:image.docker.localhost
     environment:
       - FLASK_ENV=development
       - PORT=5000
