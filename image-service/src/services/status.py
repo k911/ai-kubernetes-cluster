@@ -1,7 +1,7 @@
 import datetime
 import socket
 
-from app.configuration import debug, app_env, host, port
+from main.configuration import debug, app_env, host, port
 
 
 def get():

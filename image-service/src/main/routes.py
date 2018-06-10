@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from app import app
+from main import app
 from services import status
 
 

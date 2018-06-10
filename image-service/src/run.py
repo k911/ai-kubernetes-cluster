@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from app import app
+from main import app
 
 if __name__ == "__main__":
-    from app.configuration import app_env, host, port
+    from main.configuration import host, port, debug
 
-    app.run(host=host, port=port, debug=(True, None)[app_env == "production"])
+    app.run(host=host, port=port, debug=debug)
