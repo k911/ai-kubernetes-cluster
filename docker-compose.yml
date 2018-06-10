@@ -19,11 +19,11 @@ services:
     build:
       context: ./image-service
     volumes:
-      - ./image-service/src:/usr/src/app/src
+      - ./image-service/src:/usr/src/main/src
     labels:
       traefik.docker.network: traefik
       traefik.port: 5000
       traefik.frontend.rule: Host:image.docker.localhost
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=production
       - PORT=5000
