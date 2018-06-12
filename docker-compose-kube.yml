@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    restart: always
+    image: traefik
+    command: --api --kubernetes --logLevel=INFO
+    ports:
+      - "80:80"
+      - "8080:8080"
+
+  image-service:
+    deploy:
+      replicas: 2
+    restart: always
+    build:
+      context: ./image-service
+    image: image-service:dev
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
