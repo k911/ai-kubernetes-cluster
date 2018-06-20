@@ -21,22 +21,34 @@ spec:
     spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
+      volumes:
+        - name: treafik-tls-volume
+          secret:
+            secretName: tls-minikube-system
+        - name: traefik-toml-volume
+          configMap:
+            name: treafik-toml-configmap
       containers:
-        - image: traefik
+        - image: traefik:latest
+          imagePullPolicy: Always
           name: traefik-ingress-lb
           ports:
             - name: http
               containerPort: 80
               hostPort: 80
+            - name: https
+              containerPort: 443
+              hostPort: 443
             - name: admin
               containerPort: 8080
+          volumeMounts:
+            - name: traefik-toml-volume
+              mountPath: "/etc/traefik"
+            - name: treafik-tls-volume
+              mountPath: "/tls/dot.minikube"
           securityContext:
             capabilities:
               drop:
                 - ALL
               add:
                 - NET_BIND_SERVICE
-          args:
-            - '--api'
-            - '--kubernetes'
-            - '--logLevel=INFO'
