@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-service
+  namespace: kube-system
+spec:
+  selector:
+    k8s-app: traefik-ingress-lb
+  ports:
+    - name: web-ui
+      port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-web-ui-secret
+  namespace: kube-system
+type: Opaque
+data:
+  auth: YWRtaW46JGFwcjEkeFFaVUlzUVokN0xrV1B5TlNxZUlzMWYzTXZva3l5Lwo=
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-web-ui
+  namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/auth-type: "basic"
+    ingress.kubernetes.io/auth-secret: "traefik-web-ui-secret"
+spec:
+  rules:
+    - host: dashboard.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: traefik-service
+              servicePort: web-ui
+  # tls:
+  #  - secretName: traefik-ui-tls-cert
