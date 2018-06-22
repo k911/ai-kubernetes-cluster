@@ -2,6 +2,7 @@ import io
 
 from flask import jsonify, request
 from main import app
+from main.configuration import img_target, app_model
 from services import status, image
 from PIL import Image
 from services.error import json_error_resp
@@ -29,4 +30,4 @@ def image_analyze_route():
     img = img.read()
     img = Image.open(io.BytesIO(img))
 
-    return jsonify(image.analyze(img, request.args.get("top"))), 200
+    return jsonify(image.analyze(img, img_target, app_model, request.args.get("top"))), 200

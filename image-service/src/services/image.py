@@ -2,8 +2,7 @@ import numpy as np
 from keras.applications import imagenet_utils
 from keras.applications.resnet50 import decode_predictions
 from keras.preprocessing.image import img_to_array
-
-from services.model import get_model
+from models import get_model
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg"}
 
@@ -34,9 +33,11 @@ def prepare_image(img, target):
     return img
 
 
-def analyze(img, top=3):
+def analyze(img, img_target, model_name, top=3):
     """
 
+    :param img_target: tuple
+    :param model_name: str
     :param top: int
     :param img: PIL.Image
     """
@@ -45,11 +46,9 @@ def analyze(img, top=3):
     top = int(top)
 
     # prepare img
-    prepared_img = prepare_image(img, (224, 224))
+    prepared_img = prepare_image(img, img_target)
 
     # predict
-    # predictions = get_res_net_50().predict(prepared_img)
-    model_name = 'vgg19'
     predictions = get_model(model_name).predict(prepared_img)
     decoded_predictions = decode_predictions(predictions, top=top)[0]
 
@@ -63,19 +62,15 @@ def analyze(img, top=3):
         "predictions": listed_predictions,
         "file_info": {
             "original": {
-                "dimensions": img_dimensions(img)
+                "dimensions": dimensions(img.size)
             },
             "prepared": {
-                "dimensions": dimensions(224, 224)
+                "dimensions": dimensions(img_target)
             }
         },
     }
 
 
-def img_dimensions(img):
-    width, height = img.size
-    return dimensions(width, height)
-
-
-def dimensions(width, height) -> dict:
+def dimensions(size):
+    width, height = size
     return dict(width=width, height=height)
