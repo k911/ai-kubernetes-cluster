@@ -2,7 +2,7 @@ from flask import jsonify, request
 
 from main import app
 from services import status
-from services.aggregator import aggregate
+from services.aggregator import aggregate, USED_SERVICES
 from services.error import json_error_resp
 from services.image import allowed_extension, ALLOWED_EXTENSIONS
 
@@ -25,4 +25,15 @@ def image_analyze_route():
         return json_error_resp(
             'Extension of provided file is not within allowed ones: "%s"' % (', '.join(ALLOWED_EXTENSIONS)), 4003)
 
-    return jsonify(aggregate(img, request.args.get("top"))), 200
+    models = request.args.get("models")
+
+    if models is not None:
+        models = models.split(',')
+        for model in models:
+            if model not in USED_SERVICES:
+                return json_error_resp(
+                    'Value "%s" is not an allowed model. Accepted values: %s ' % (model, ', '.join(USED_SERVICES)), 4004)
+    else:
+        models = USED_SERVICES
+
+    return jsonify(aggregate(img, request.args.get("top"), models)), 200
