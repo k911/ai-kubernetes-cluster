@@ -30,5 +30,5 @@ def get_model(name: str):
         return get_res_net_50()
     elif name == 'vgg19':
         return get_vgg_19()
-    else:
-        raise ValueError('Model %s not exists. Available: %s' % (name, ', '.join(['resnet50', 'vgg19'])))
+
+    raise ValueError('Model %s not exists. Available: %s' % (name, ', '.join(['resnet50', 'vgg19'])))
