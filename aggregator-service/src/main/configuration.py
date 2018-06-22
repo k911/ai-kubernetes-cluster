@@ -9,7 +9,7 @@ if "1" == os.environ.get("APP_DEBUG", "0"):
 else:
     debug = app_env != "production"
 
-service_path = os.environ.get("SERICE_PATH", "/image/analyze")
+service_path = os.environ.get("SERICE_PATH", "image/analyze")
 services_urls = {
     "resnet50": os.environ.get("SERVICE_RESNET50_URL", "http://image-service-resnet50"),
     "vgg19": os.environ.get("SERVICE_VGG19_URL", "http://image-service-vgg19"),

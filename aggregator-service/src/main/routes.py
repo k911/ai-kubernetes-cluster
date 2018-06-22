@@ -25,4 +25,4 @@ def image_analyze_route():
         return json_error_resp(
             'Extension of provided file is not within allowed ones: "%s"' % (', '.join(ALLOWED_EXTENSIONS)), 4003)
 
-    return jsonify(aggregate(img)), 200
+    return jsonify(aggregate(img, request.args.get("top"))), 200
