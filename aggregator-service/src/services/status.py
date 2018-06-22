@@ -1,8 +1,7 @@
 import datetime
 import socket
 
-from main.configuration import debug, app_env, host, port, app_model, img_target
-from services.image import dimensions
+from main.configuration import debug, app_env, host, port, services_urls, service_path
 
 
 def get():
@@ -19,9 +18,12 @@ def get():
         data["configuration"] = {
             "debug": debug,
             "env": app_env,
-            "model": dict(name=app_model, target=dimensions(img_target)),
             "host": host,
-            "port": port
+            "port": port,
+            "service": {
+                "path": service_path,
+                "urls": services_urls
+            }
         }
 
     return data
