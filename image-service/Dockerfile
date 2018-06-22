@@ -16,5 +16,12 @@ CMD ["docker-app-run"]
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY . /usr/src/app
+COPY src/models/__init__.py /usr/src/app/src/models/__init__.py
 
+ARG APP_MODEL=vgg19
+ENV APP_MODEL=$APP_MODEL
+
+# Fetch Keras model data
+RUN python3 -c "from models import get_model; get_model('$APP_MODEL')"
+
+COPY . /usr/src/app

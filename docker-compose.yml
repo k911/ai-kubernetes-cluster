@@ -11,19 +11,40 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  image-service:
+  image-service-resnet50:
     deploy:
       replicas: 2
     restart: always
     build:
       context: ./image-service
-    image: image-service:dev
+      args:
+        - APP_MODEL=resnet50
+    image: image-service-resnet50:dev
     volumes:
       - ./image-service/src:/usr/src/main/src
     labels:
       traefik.docker.network: traefik
       traefik.port: 5000
-      traefik.frontend.rule: Host:image.docker.localhost
+      traefik.frontend.rule: Host:image-resnet50.docker.localhost
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
+
+  image-service-vgg19:
+    deploy:
+      replicas: 2
+    restart: always
+    build:
+      context: ./image-service
+      args:
+        - APP_MODEL=vgg19
+    image: image-service-vgg19:dev
+    volumes:
+      - ./image-service/src:/usr/src/main/src
+    labels:
+      traefik.docker.network: traefik
+      traefik.port: 5000
+      traefik.frontend.rule: Host:image-vgg19.docker.localhost
     environment:
       - FLASK_ENV=production
       - PORT=5000
