@@ -31,4 +31,4 @@ def get_model(name: str):
     elif name == 'vgg19':
         return get_vgg_19()
     else:
-        raise ValueError("Model %s not exists" % name)
+        raise ValueError('Model %s not exists. Available: %s' % (name, ', '.join(['resnet50', 'vgg19'])))
