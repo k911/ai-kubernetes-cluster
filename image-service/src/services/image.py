@@ -60,9 +60,7 @@ def analyze(img, img_target, model_name, top=3):
     return {
         "used_model": model_name,
         "predictions": listed_predictions,
-        "file_info": {
-            "dimensions": dimensions(img_target)
-        },
+        "target_dimensions": dimensions(img_target)
     }
 
 

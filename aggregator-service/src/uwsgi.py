@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from main import app as application, configuration
-from models import get_model
+from main import app as application
 
 if __name__ == "__main__":
 

@@ -11,6 +11,27 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  aggregator-service:
+    deploy:
+      replicas: 2
+    restart: always
+    build:
+      context: ./aggregator-service
+    image: aggregator-service:dev
+    volumes:
+      - ./aggregator-service/src:/usr/src/main/src
+    labels:
+      traefik.docker.network: traefik
+      traefik.port: 5000
+      traefik.frontend.rule: Host:aggregator-service.docker.localhost
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
+      - SERVICE_RESNET50_URL=http://image-service-resnet50:5000
+      - SERVICE_VGG19_URL=http://image-service-vgg19:5000
+      - SERVICE_INCEPTV3_URL=http://image-service-inceptv3:5000
+      - SERVICE_XCEPTV1_URL=http://image-service-xceptv1:5000
+
   image-service-resnet50:
     deploy:
       replicas: 2
@@ -45,6 +66,44 @@ services:
       traefik.docker.network: traefik
       traefik.port: 5000
       traefik.frontend.rule: Host:image-vgg19.docker.localhost
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
+
+  image-service-xceptv1:
+    deploy:
+      replicas: 2
+    restart: always
+    build:
+      context: ./image-service
+      args:
+        - APP_MODEL=xceptv1
+    image: image-service-xceptv1:dev
+    volumes:
+      - ./image-service/src:/usr/src/main/src
+    labels:
+      traefik.docker.network: traefik
+      traefik.port: 5000
+      traefik.frontend.rule: Host:image-xceptv1.docker.localhost
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
+
+  image-service-inceptv3:
+    deploy:
+      replicas: 2
+    restart: always
+    build:
+      context: ./image-service
+      args:
+        - APP_MODEL=inceptv3
+    image: image-service-inceptv3:dev
+    volumes:
+      - ./image-service/src:/usr/src/main/src
+    labels:
+      traefik.docker.network: traefik
+      traefik.port: 5000
+      traefik.frontend.rule: Host:image-inceptv3.docker.localhost
     environment:
       - FLASK_ENV=production
       - PORT=5000
