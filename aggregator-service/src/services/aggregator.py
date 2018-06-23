@@ -12,6 +12,7 @@ def generate_service_url(service, path: str) -> str:
 def ask_for_predictions(img, service, top):
     if top < 5:
         top = 5
+
     img.seek(0)
     files = {"image": (img.filename, img.stream, img.mimetype)}
     resp = requests.post(generate_service_url(service, "/image/analyze"), params=dict(top=top), files=files)
