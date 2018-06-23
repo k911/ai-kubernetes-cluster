@@ -8,7 +8,7 @@ from services.image import dimensions
 def get():
     data = {
         "version": 0.2,
-        "date": datetime.datetime.now().isoformat()
+        "date": datetime.datetime.now().isoformat(),
     }
 
     if debug:
@@ -23,5 +23,7 @@ def get():
             "host": host,
             "port": port
         }
+    else:
+        data["model"] = app_model
 
     return data
