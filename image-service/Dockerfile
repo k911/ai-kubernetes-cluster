@@ -16,7 +16,7 @@ CMD ["docker-app-run"]
 
 COPY Pipfile Pipfile.lock ./
 
-RUN pipenv install --deploy --system
+RUN pipenv install --deploy --system --skip-lock
 
 COPY . /usr/src/app
 
