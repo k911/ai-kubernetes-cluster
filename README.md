@@ -18,17 +18,26 @@ Running via `minikube`:
         ```bash
         $ docker-compose build --pull
         ```
-    4. Deploy services to cluster
+    4. Generate self-signed TLS certificate
+        ```bash
+        $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=*.minikube"
+        ```
+    5. Add generated certificate to cluster
+        ```bash
+        $ kubectl -n kube-system create secret tls tls-minikube-system --key=tls.key --cert=tls.crt
+        $ kubectl create secret tls tls-minikube-default --key=tls.key --cert=tls.crt
+        ```
+    6. Deploy services to cluster
         ```bash
         $ kubectl apply -f kubernetes/traefik
         $ kubectl apply -f kubernetes/image-service
         ```
-    5. Point hosts to VM:
+    7. Point *.minikube domains to local cluster entrypoint:
         ```bash
         $ echo "$(minikube ip) image-service.minikube dashboard.minikube" | sudo tee -a /etc/hosts
         ```
 
-    6. Wait for all pods to be in running state
+    8. Wait for all pods to be in running state
         ```bash
         $ kubectl get pods --all-namespaces
         ```
@@ -39,11 +48,11 @@ Running via `minikube`:
         ```
 
 - Available services:
-    - [Image Service](http://image-service.minikube)
+    - [Image Service](https://image-service.minikube)
         ```bash
-        $ curl image-service.minikube/status
+        $ curl -k https://image-service.minikube/status
         ```
-    - [Traefik Dashboard (Load Balancer)](http://dashboard.minikube)
+    - [Traefik Dashboard (Load Balancer)](https://dashboard.minikube)
 
         Basic auth credentials:
 
@@ -82,5 +91,5 @@ Running via `docker-compose`:
 - Testing Image Service:
     - `/status` endpoint
       ```bash
-      $ curl -H Host:image.docker.localhost http://127.0.0.1
+      $ curl -H "Host: image.docker.localhost" http://127.0.0.1
       ```

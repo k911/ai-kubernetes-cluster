@@ -38,5 +38,5 @@ spec:
           - backend:
               serviceName: traefik-service
               servicePort: web-ui
-  # tls:
-  #  - secretName: traefik-ui-tls-cert
+  tls:
+    - secretName: tls-minikube-system
