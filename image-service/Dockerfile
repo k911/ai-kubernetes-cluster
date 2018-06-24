@@ -24,4 +24,7 @@ ENV APP_MODEL=$APP_MODEL
 # Fetch Keras model data
 RUN python3 -c "from models import get_model; get_model('$APP_MODEL')"
 
+# Fetch ImageNet class index
+RUN python3 -c "from keras.applications.imagenet_utils import CLASS_INDEX_PATH, get_file; get_file('imagenet_class_index.json', CLASS_INDEX_PATH, cache_subdir='models', file_hash='c2c37ea517e94d9795004a39431a14cb')"
+
 COPY . /usr/src/app
