@@ -1,5 +1,9 @@
 # SI Project
 
+## Postman
+
+Postman Collection: https://www.getpostman.com/collections/e6e00ce3785eef4a9aa5
+
 ## Kubernetes
 
 Running via `minikube`:
@@ -16,8 +20,14 @@ Running via `minikube`:
         ```
     3. Build images
         ```bash
-        $ docker-compose build --pull
+        # build all images
+        $ docker-compose build
+        # or chosen ones
+        $ docker-compose build aggregator-service image-service-resnet50
         ```
+
+        Info: In case you may run out of memory skip while building image service (eg. vgg19) skip it in whole process
+
     4. Generate self-signed TLS certificate
         ```bash
         $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=*.minikube"
@@ -27,14 +37,14 @@ Running via `minikube`:
         $ kubectl -n kube-system create secret tls tls-minikube-system --key=tls.key --cert=tls.crt
         $ kubectl create secret tls tls-minikube-default --key=tls.key --cert=tls.crt
         ```
-    6. Deploy services to cluster
+    6. Deploy main services to cluster
         ```bash
         $ kubectl apply -f kubernetes/traefik
-        $ kubectl apply -f kubernetes/image-service
+        $ kubectl apply -f kubernetes/aggregator-service
         ```
     7. Point *.minikube domains to local cluster entrypoint:
         ```bash
-        $ echo "$(minikube ip) image-service.minikube dashboard.minikube" | sudo tee -a /etc/hosts
+        $ echo "$(minikube ip) aggregator-service.minikube dashboard.minikube" | sudo tee -a /etc/hosts
         ```
 
     8. Wait for all pods to be in running state
@@ -47,10 +57,34 @@ Running via `minikube`:
         $ minikube dashboard
         ```
 
-- Available services:
-    - [Image Service](https://image-service.minikube)
+    9. Deploy image services:
         ```bash
-        $ curl -k https://image-service.minikube/status
+        $ kubectl apply -f kubernetes/image-service-resnet50
+        $ kubectl apply -f kubernetes/image-service-vgg19
+        $ kubectl apply -f kubernetes/image-service-xceptv1
+        $ kubectl apply -f kubernetes/image-service-inceptv3
+        ```
+
+        Info: Deploying all services on local computer escpecially with many replicas can cause issues, so it is not recommended
+
+    10. (Optionally) Point image services to local minikube domain:
+        ```bash
+        $ echo "$(minikube ip) image-service-resnet50.minikube image-service-vgg19.minikube image-service-xceptv1.minikube image-service-inceptv3.minikube" | sudo tee -a /etc/hosts
+        ```
+
+        Info: You can use image services via aggregator without exposing them to the world by disabling their ingress controllers
+
+- Available services:
+    - [Aggregator Service](https://aggregator-service.minikube)
+        ```bash
+        $ curl -k https://aggregator-service.minikube/status
+        ```
+    - Image Services:
+        ```bash
+        $ curl -k https://image-service-resnet50.minikube/status
+        $ curl -k https://image-service-vgg19.minikube/status
+        $ curl -k https://image-service-inceptv3.minikube/status
+        $ curl -k https://image-service-xceptv1.minikube/status
         ```
     - [Traefik Dashboard (Load Balancer)](https://dashboard.minikube)
 
@@ -80,7 +114,7 @@ Running via `docker-compose`:
     - `-d` - run in background
     - `--pull` - enforce to pull new images from docker hub
     - `--build` - enforce to rebuild dockerfiles
-    - `--scale image-service=5` - scale container having name "image-service" to five instances
+    - `--scale aggregator-service=5` - scale container having name "aggregator-service" to five instances
 
 - Logs
     ```bash
@@ -89,8 +123,8 @@ Running via `docker-compose`:
     - `-f` - follow logs in real-time
     - `name` - show logs only of specific container by its name
 
-- Testing Image Service:
+- Testing Aggregator Service:
     - `/status` endpoint
       ```bash
-      $ curl -H "Host: image.docker.localhost" http://127.0.0.1
+      $ curl -H "Host: aggregator-service.docker.localhost" http://127.0.0.1
       ```
