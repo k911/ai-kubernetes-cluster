@@ -1,16 +1,16 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: image-service
+  name: image-service-resnet50
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
-    - host: image-service.minikube
+    - host: image-service-resnet50.minikube
       http:
         paths:
           - backend:
-              serviceName: image-service
+              serviceName: image-service-resnet50
               servicePort: http
   tls:
     - secretName: tls-minikube-default

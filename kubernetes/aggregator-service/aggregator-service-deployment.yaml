@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: aggregator-service
+  labels:
+    app: aggregator-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aggregator-service
+  template:
+    metadata:
+      labels:
+        app: aggregator-service
+    spec:
+      containers:
+        - name: aggregator-service
+          image: 'aggregator-service:dev'
+          env:
+            - name: FLASK_ENV
+              value: production
+            - name: PORT
+              value: '5000'
+            - name: SERVICE_RESNET50_URL
+              value: 'http://image-service-resnet50'
+            - name: SERVICE_VGG19_URL
+              value: 'http://image-service-vgg19'
+            - name: SERVICE_INCEPTV3_URL
+              value: 'http://image-service-inceptv3'
+            - name: SERVICE_XCEPTV1_URL
+              value: 'http://image-service-xceptv1'
+          ports:
+            - name: http
+              containerPort: 5000
