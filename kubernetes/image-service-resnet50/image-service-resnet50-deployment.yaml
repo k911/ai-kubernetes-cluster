@@ -1,27 +1,25 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: image-service
+  name: image-service-resnet50
   labels:
-    app: image-service
+    app: image-service-resnet50
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
-      app: image-service
+      app: image-service-resnet50
   template:
     metadata:
       labels:
-        app: image-service
+        app: image-service-resnet50
     spec:
       containers:
-        - name: image-service
-          image: 'image-service:dev'
+        - name: image-service-resnet50
+          image: 'image-service-resnet50:dev'
           env:
             - name: FLASK_ENV
               value: production
-            # - name: APP_DEBUG
-              # value: '1'
             - name: PORT
               value: '5000'
           ports:
