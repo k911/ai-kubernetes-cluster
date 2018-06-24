@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: image-service-inceptv3
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: image-service-inceptv3.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: image-service-inceptv3
+              servicePort: http
+  tls:
+    - secretName: tls-minikube-default
