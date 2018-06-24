@@ -12,3 +12,5 @@ spec:
           - backend:
               serviceName: image-service
               servicePort: http
+  tls:
+    - secretName: tls-minikube-default

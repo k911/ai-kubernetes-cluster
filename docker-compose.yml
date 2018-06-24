@@ -3,13 +3,12 @@ version: '3'
 services:
   reverse-proxy:
     restart: always
-    image: traefik
+    image: traefik:latest
     command: --api --docker
     ports:
       - "80:80"
       - "8080:8080"
     volumes:
-      - ./reverse-proxy/traefik-docker.toml:/etc/traefik/traefik.toml
       - /var/run/docker.sock:/var/run/docker.sock
 
   image-service:
