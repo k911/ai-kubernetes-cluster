@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: aggregator-service
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: aggregator-service.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: aggregator-service
+              servicePort: http
+  tls:
+    - secretName: tls-minikube-default
