@@ -61,12 +61,7 @@ def analyze(img, img_target, model_name, top=3):
         "used_model": model_name,
         "predictions": listed_predictions,
         "file_info": {
-            "original": {
-                "dimensions": dimensions(img.size)
-            },
-            "prepared": {
-                "dimensions": dimensions(img_target)
-            }
+            "dimensions": dimensions(img_target)
         },
     }
 
