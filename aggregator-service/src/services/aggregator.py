@@ -31,10 +31,6 @@ def ask_for_predictions(session, img, service, top):
     return resp
 
 
-def make_score(model, score):
-    return dict(model=model, score=score)
-
-
 def parse_responses(responses: list) -> list:
     results = []
     for response in responses:
@@ -50,17 +46,22 @@ def parse_responses(responses: list) -> list:
     return results
 
 
-def map_predictions(results: list) -> dict:
+def make_score(model, score, weight):
+    return dict(model=model, score=score, weight=weight)
+
+
+def map_predictions(results: list, weights: dict) -> dict:
     predictions = dict()
     for result in results:
         for prediction in result["predictions"]:
-            pred_class = prediction["class_description"]
-            score = make_score(result["used_model"], prediction["score"])
+            label = prediction["class_description"]
+            model = result["used_model"]
+            score = make_score(model, float(prediction["score"]), weights[model])
 
-            if pred_class in predictions:
-                predictions[pred_class].append(score)
+            if label in predictions:
+                predictions[label].append(score)
             else:
-                predictions[pred_class] = [score]
+                predictions[label] = [score]
 
     return predictions
 
@@ -69,9 +70,18 @@ def make_result(label, score, scores) -> dict:
     return dict(label=label, score=score, scores=scores)
 
 
+def parse_float(f: float) -> str:
+    return "%.3f" % f
+
+
+def parse_scores(scores: list) -> list:
+    return [make_score(score["model"], parse_float(score["score"]), parse_float(score["weight"])) for score in
+            scores]
+
+
 def parse_predictions(predictions: list, top: int) -> list:
-    return [make_result(prediction["label"], str(prediction["score"]), prediction["scores"]) for prediction in
-            predictions][:top]
+    return [make_result(prediction["label"], parse_float(prediction["score"]), parse_scores(prediction["scores"]))
+            for prediction in predictions][:top]
 
 
 def count_scores(predictions: iter) -> list:
@@ -79,8 +89,9 @@ def count_scores(predictions: iter) -> list:
     for label, scores in predictions:
         score = 0.
         for partial in scores:
-            score = score + float(partial["score"])
-            results.append(make_result(label, score, scores))
+            score = score + partial["score"] * partial["weight"]
+
+        results.append(make_result(label, score, scores))
     return results
 
 
@@ -88,11 +99,12 @@ def make_file(data, img):
     return img.filename, io.BytesIO(data), img.mimetype
 
 
-def aggregate(img, top=None, models=USED_SERVICES):
+def aggregate(img, top: int, weights: dict):
     top = int(top or 5)
     img_data = img.read()
     img.close()
 
+    models = weights.keys()
     max_workers = len(models)
     if max_workers > 10:
         max_workers = 10
@@ -100,7 +112,7 @@ def aggregate(img, top=None, models=USED_SERVICES):
     session = FuturesSession(max_workers=max_workers)
     responses = [ask_for_predictions(session, make_file(img_data, img), service, top) for service in models]
     results = parse_responses(responses)
-    mapped_predictions = map_predictions(results)
+    mapped_predictions = map_predictions(results, weights)
     predictions = count_scores(mapped_predictions.items())
     predictions = sorted(predictions, key=lambda k: k['score'], reverse=True)
 
