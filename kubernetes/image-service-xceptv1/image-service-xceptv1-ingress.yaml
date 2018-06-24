@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: image-service-xceptv1
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: image-service-xceptv1.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: image-service-xceptv1
+              servicePort: http
+  tls:
+    - secretName: tls-minikube-default
