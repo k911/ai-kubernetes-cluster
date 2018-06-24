@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: image-service-vgg19
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: image-service-vgg19.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: image-service-vgg19
+              servicePort: http
+  tls:
+    - secretName: tls-minikube-default
