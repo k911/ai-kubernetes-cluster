@@ -1,4 +1,6 @@
-import requests
+import io
+
+from requests_futures.sessions import FuturesSession
 
 from main.configuration import services_urls
 
@@ -9,13 +11,23 @@ def generate_service_url(service, path: str) -> str:
     return "%s/%s" % (services_urls[service], path.lstrip('/'))
 
 
-def ask_for_predictions(img, service, top):
+def resp_callback(session, response):
+    response.original_url = response.history[0].url if response.history else response.url
+    try:
+        data = response.json()
+    except ValueError:
+        data = None
+        print("Not valid JSON in received response to request: %s" % response.original_url)
+    response.data = data
+
+
+def ask_for_predictions(session, img, service, top):
     if top < 5:
         top = 5
 
-    img.seek(0)
-    files = {"image": (img.filename, img.stream, img.mimetype)}
-    resp = requests.post(generate_service_url(service, "/image/analyze"), params=dict(top=top), files=files)
+    files = {"image": img}
+    resp = session.post(generate_service_url(service, "/image/analyze"), params=dict(top=top), files=files,
+                        background_callback=resp_callback)
     return resp
 
 
@@ -26,15 +38,14 @@ def make_score(model, score):
 def parse_responses(responses: list) -> list:
     results = []
     for response in responses:
+        response = response.result()
         original_url = response.history[0].url if response.history else response.url
         if response.status_code != 200:
             print("An error occurred requesting: %s" % original_url)
             continue
 
-        try:
-            results.append(response.json())
-        except ValueError:
-            print("Not valid JSON in received response to request: %s" % original_url)
+        if response.data is not None:
+            results.append(response.data)
 
     return results
 
@@ -73,12 +84,21 @@ def count_scores(predictions: iter) -> list:
     return results
 
 
-def aggregate(img, top=None, models=USED_SERVICES):
-    if top is None:
-        top = 5
-    top = int(top)
+def make_file(data, img):
+    return img.filename, io.BytesIO(data), img.mimetype
 
-    responses = [ask_for_predictions(img, service, top) for service in models]
+
+def aggregate(img, top=None, models=USED_SERVICES):
+    top = int(top or 5)
+    img_data = img.read()
+    img.close()
+
+    max_workers = len(models)
+    if max_workers > 10:
+        max_workers = 10
+
+    session = FuturesSession(max_workers=max_workers)
+    responses = [ask_for_predictions(session, make_file(img_data, img), service, top) for service in models]
     results = parse_responses(responses)
     mapped_predictions = map_predictions(results)
     predictions = count_scores(mapped_predictions.items())
