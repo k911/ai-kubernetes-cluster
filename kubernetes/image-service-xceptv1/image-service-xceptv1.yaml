@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-service-xceptv1
+spec:
+  ports:
+    - name: http
+      targetPort: 5000
+      port: 80
+  selector:
+    app: image-service-xceptv1
