@@ -2,6 +2,8 @@ import requests
 
 from main.configuration import services_urls
 
+USED_SERVICES = ["resnet50", "vgg19", "xceptv1", "inceptv3"]
+
 
 def generate_service_url(service, path: str) -> str:
     return "%s/%s" % (services_urls[service], path.lstrip('/'))
@@ -35,12 +37,16 @@ def map_predictions(responses) -> dict:
     return predictions
 
 
-def aggregate(img, top=None):
+def make_result(label, score, scores) -> dict:
+    return dict(label=label, score=score, scores=scores)
+
+
+def aggregate(img, top=None, models=USED_SERVICES):
     if top is None:
         top = 5
     top = int(top)
 
-    responses = [ask_for_predictions(img, service, top) for service in ["resnet50", "vgg19"]]
+    responses = [ask_for_predictions(img, service, top) for service in models]
 
     mapped_predictions = map_predictions(responses)
     predictions = []
@@ -48,12 +54,14 @@ def aggregate(img, top=None):
         score = 0.
         for partial in scores:
             score = score + float(partial["score"])
-        predictions.append(dict(label=label, score=str(score), scores=scores))
+        predictions.append(make_result(label, score, scores))
 
     predictions = sorted(predictions, key=lambda k: k['score'], reverse=True)
+    results = [make_result(prediction["label"], str(prediction["score"]), prediction["scores"]) for prediction in
+               predictions][:top]
 
     return {
-        "predictions": predictions[:top],
+        "predictions": results,
         "file_info": {
             "name": img.filename
         }

@@ -13,4 +13,6 @@ service_path = os.environ.get("SERICE_PATH", "image/analyze")
 services_urls = {
     "resnet50": os.environ.get("SERVICE_RESNET50_URL", "http://image-service-resnet50"),
     "vgg19": os.environ.get("SERVICE_VGG19_URL", "http://image-service-vgg19"),
+    "inceptv3": os.environ.get("SERVICE_INCEPTV3_URL", "http://image-service-inceptv3"),
+    "xceptv1": os.environ.get("SERVICE_XCEPTV1_URL", "http://image-service-xceptv1"),
 }

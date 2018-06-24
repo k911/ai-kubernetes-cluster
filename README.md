@@ -67,6 +67,7 @@ Running via `docker-compose`:
 
 - Basic:
     ```bash
+    $ echo "127.0.0.1 image-resnet50.docker.localhost image-vgg19.docker.localhost image-inceptv3.docker.localhost image-xceptv1.docker.localhost aggregator-service.docker.localhost" | sudo tee -a /etc/hosts
     $ docker-compose up
     ```
     Go to http://localhost:8080/dashboard/ to see traefik dashboard

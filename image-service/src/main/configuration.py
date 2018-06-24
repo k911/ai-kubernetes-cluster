@@ -10,7 +10,7 @@ if "1" == os.environ.get("APP_DEBUG", "0"):
 else:
     debug = app_env != "production"
 
-if app_model != "inceptv3":
+if app_model != "inceptv3" and app_model != "xceptv1":
     img_target = (224, 224)
 else:
     img_target = (299, 299)
