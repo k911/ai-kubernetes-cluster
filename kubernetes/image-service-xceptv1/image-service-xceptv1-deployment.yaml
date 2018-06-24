@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: image-service-xceptv1
+  labels:
+    app: image-service-xceptv1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-service-xceptv1
+  template:
+    metadata:
+      labels:
+        app: image-service-xceptv1
+    spec:
+      containers:
+        - name: image-service-xceptv1
+          image: 'image-service-xceptv1:dev'
+          env:
+            - name: FLASK_ENV
+              value: production
+            - name: PORT
+              value: '5000'
+          ports:
+            - name: http
+              containerPort: 5000

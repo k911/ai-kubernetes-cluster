@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: image-service-inceptv3
+  labels:
+    app: image-service-inceptv3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-service-inceptv3
+  template:
+    metadata:
+      labels:
+        app: image-service-inceptv3
+    spec:
+      containers:
+        - name: image-service-inceptv3
+          image: 'image-service-inceptv3:dev'
+          env:
+            - name: FLASK_ENV
+              value: production
+            - name: PORT
+              value: '5000'
+          ports:
+            - name: http
+              containerPort: 5000
