@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  image-service:
+    build:
+      context: ./image-service
+    ports:
+      - 5000:5000
+    volumes:
+      - ./image-service/app:/usr/src/app
+    environment:
+      - FLASK_ENV=development
+      - PORT=5000
